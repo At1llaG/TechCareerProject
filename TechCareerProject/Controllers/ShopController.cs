@@ -22,6 +22,19 @@ namespace TechCareer.Website.Controllers
             _minioService = minioService;
         }
 
+        public async Task<IActionResult> TestMinioConnection()
+        {
+            bool isConnected = await _minioService.TestConnectionAsync();
+            if (isConnected)
+            {
+                return Content("Minio connection is successful.");
+            }
+            else
+            {
+                return Content("Failed to establish Minio connection.");
+            }
+        }
+
         public async Task<IActionResult> Index()
         {
             var products = await _context.Products.ToListAsync();

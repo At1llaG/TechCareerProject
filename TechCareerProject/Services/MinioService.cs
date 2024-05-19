@@ -14,15 +14,30 @@ public class MinioService
 
     public MinioService(IConfiguration configuration)
     {
-        _endpoint = configuration["Minio:Endpoint"];
+        var endpoint = configuration["Minio:Endpoint"];
         var accessKey = configuration["Minio:AccessKey"];
         var secretKey = configuration["Minio:SecretKey"];
         _bucketName = configuration["Minio:BucketName"];
 
         _minioClient = new MinioClient()
-            .WithEndpoint(_endpoint)
+            .WithEndpoint(endpoint)
             .WithCredentials(accessKey, secretKey)
+            .WithSSL(false) // Adjust SSL settings as needed
             .Build();
+    }
+
+    public async Task<bool> TestConnectionAsync()
+    {
+        try
+        {
+            await _minioClient.ListBucketsAsync();
+            return true; 
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error testing Minio connection: {ex.Message}");
+            return false;
+        }
     }
 
     public async Task UploadFileAsync(string objectName, Stream data, long size, string contentType)
